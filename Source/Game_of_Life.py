@@ -2,6 +2,10 @@ import os
 import time
 import random
 import shutil
+import colorama
+
+def pos (y, x):
+    return "\x1b[" + str(y) + ";" + str(x) + "H"
 
 def getGridSize():
 	gridX, gridY = input("Input grid's size(4x4) Enter '0x0' for current terminal size: ").split('x')
@@ -23,14 +27,16 @@ def getGridMethod():
 	print("\n15- Completely random with adjustable bias\n")
 		
 	gridCreationMethod = int(input("Choose your grid creation method: "))
+	os.system("cls")
 	return gridCreationMethod
 	#add checks for user input
 
 def progressBar(x, y, interval):
 	if x%interval == 0:	
-		os.system("cls")
-		print("finding {} random points".format(y))
-		print("{}%".format(int((x*100)/y)))
+		#os.system("cls")
+		progress = int((x*100)/y)
+		print(pos(0,0)+"finding {} random points".format(y))
+		print(pos(2,20)+"|"*progress+" "*(100-progress)+"{}%".format(progress))
 
 def getRandomLocations(numberOfLocations):
 	randomLocations = []
@@ -409,18 +415,73 @@ def createGrid(gridX, gridY, gridCreationMethod):
 		
 
 def displayGrid(grid):
-	os.system("cls")
+	#os.system("cls")
 	for y in range(len(grid)):
-		print("")
+		#print("")
 		for x in range(len(grid[0])):
 			if grid[y][x] == 1:
-				print("#", end = '')
+				print(pos(y+1,x+1) + "#")
+				#print("#", end ='')
 			else:
-				print(" ", end = '')
-	print("")
+				print(pos(y+1,x+1) + " ")
+				#print(" ", end ='')
+	#print("")
 
+def updateGrid(x,y,status):
+	if status:
+		print(pos(y,x) + "#")
+	else:
+		print(pos(y,x) + " ")
 
+def playClassic(grid):
+	for y in range(len(grid)):
+		for x in range(len(grid[0])):
+			aliveNeighbours = 0
+			deadNeighbours = 0
+			if x + 1 > len(grid[0])-1:
+				offsetXRight = 1 - len(grid[0]) 
+			else:
+				offsetXRight = 1
+			if x - 1 < 0:
+				offsetXLeft = -1 + len(grid[0])
+			else:
+				offsetXLeft = -1
+			if y + 1 > len(grid)-1:
+				offsetYRight = 1 - len(grid)
+			else:
+				offsetYRight = 1
+			if y - 1 < 0:
+				offsetYLeft = -1 + len(grid)
+			else:
+				offsetYLeft = -1
+
+			offsetXList = [offsetXRight, offsetXLeft, 0]
+			offsetYList = [offsetYRight, offsetYLeft, 0]
+
+			for yOffset in offsetYList:
+				for xOffset in offsetXList:
+					if xOffset == 0 and yOffset == 0:
+						selfStatuts = grid[y+yOffset][x+xOffset]
+					elif grid[y+yOffset][x+xOffset] == 1:
+						aliveNeighbours += 1
+					elif grid[y+yOffset][x+xOffset] == 0:
+						deadNeighbours += 1
+
+			if selfStatuts:
+				if aliveNeighbours > 3:
+					grid[y][x] = 0
+					updateGrid(x+1,y+1,0)
+				elif aliveNeighbours < 2:
+					grid[y][x] = 0
+					updateGrid(x+1,y+1,0)
+			else:
+				if aliveNeighbours == 3:
+					grid[y][x] = 1
+					updateGrid(x+1,y+1,1)
+
+		
 if __name__ == "__main__":
+	
 	generateAgain = 'y'
 	while generateAgain != 'n' and generateAgain != 'N':
 		os.system("cls")
@@ -433,5 +494,15 @@ if __name__ == "__main__":
 		else:
 			generateAgain = 'n'
 
-
-
+	stopAtEach = int(input("At how many iterations you should be asked to stop? ")) #Add cheks for user input
+	stop = 'n'
+	os.system("cls")
+	while stop == 'n':
+		for i in range(stopAtEach):
+			#os.system("cls")
+			playClassic(grid)
+			#print ("\n" * shutil.get_terminal_size()[1])
+			#displayGrid(grid)
+			
+		stop = input("Would you like to stop(y/n)? ")
+		
