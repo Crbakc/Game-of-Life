@@ -33,10 +33,9 @@ def getGridMethod():
 
 def progressBar(x, y, interval):
 	if x%interval == 0:	
-		#os.system("cls")
 		progress = int((x*100)/y)
-		print(pos(0,0)+"finding {} random points".format(y))
-		print(pos(2,20)+"|"*progress+" "*(100-progress)+"{}%".format(progress))
+		print(pos(1,1)+"finding {} random points".format(y))
+		print(pos(2,1)+"|"*progress+" "*(100-progress)+"{}%".format(progress))
 
 def getRandomLocations(numberOfLocations):
 	randomLocations = []
@@ -415,25 +414,26 @@ def createGrid(gridX, gridY, gridCreationMethod):
 		
 
 def displayGrid(grid):
-	#os.system("cls")
 	for y in range(len(grid)):
 		#print("")
 		for x in range(len(grid[0])):
 			if grid[y][x] == 1:
-				print(pos(y+1,x+1) + "#")
+				print(pos(y+1,x+1) + "#", end = '')
 				#print("#", end ='')
 			else:
-				print(pos(y+1,x+1) + " ")
+				print(pos(y+1,x+1) + " ", end = '')
 				#print(" ", end ='')
 	#print("")
 
 def updateGrid(x,y,status):
 	if status:
-		print(pos(y,x) + "#")
+		print(pos(y,x) + "#", end = '')
 	else:
-		print(pos(y,x) + " ")
+		print(pos(y,x) + " ", end = '')
 
 def playClassic(grid):
+	changedPoint = [0,0,0]
+	changes = []
 	for y in range(len(grid)):
 		for x in range(len(grid[0])):
 			aliveNeighbours = 0
@@ -469,15 +469,33 @@ def playClassic(grid):
 
 			if selfStatuts:
 				if aliveNeighbours > 3:
-					grid[y][x] = 0
+					#grid[y][x] = 0
+					changedPoint = [0,0,0]
+					changedPoint[0] = y
+					changedPoint[1] = x
+					changedPoint[2] = 0
+					changes.append(changedPoint)
 					updateGrid(x+1,y+1,0)
 				elif aliveNeighbours < 2:
-					grid[y][x] = 0
+					#grid[y][x] = 0
+					changedPoint = [0,0,0]
+					changedPoint[0] = y
+					changedPoint[1] = x
+					changedPoint[2] = 0
+					changes.append(changedPoint)
 					updateGrid(x+1,y+1,0)
 			else:
 				if aliveNeighbours == 3:
-					grid[y][x] = 1
+					#grid[y][x] = 1
+					changedPoint = [0,0,0]
+					changedPoint[0] = y
+					changedPoint[1] = x
+					changedPoint[2] = 1
+					changes.append(changedPoint)
 					updateGrid(x+1,y+1,1)
+	for i in range(len(changes)):
+		grid[changes[i][0]][changes[i][1]] = changes[i][2]
+		#updateGrid(changes[i][1]+1,changes[i][0]+1,changes[i][2])
 
 		
 if __name__ == "__main__":
@@ -493,16 +511,21 @@ if __name__ == "__main__":
 			generateAgain = 'y'
 		else:
 			generateAgain = 'n'
-
+	
 	stopAtEach = int(input("At how many iterations you should be asked to stop? ")) #Add cheks for user input
 	stop = 'n'
+	os.system('mode con: cols={} lines={}'.format(gridX+10,gridY+10))
 	os.system("cls")
+	generation = 1
 	while stop == 'n':
 		for i in range(stopAtEach):
-			#os.system("cls")
+			#time.sleep(2)
 			playClassic(grid)
 			#print ("\n" * shutil.get_terminal_size()[1])
 			#displayGrid(grid)
+			generation += 1
+			print('\n')
+			print(generation)
 			
 		stop = input("Would you like to stop(y/n)? ")
 		
